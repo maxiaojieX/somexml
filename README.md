@@ -1,4 +1,11 @@
-## pom.xml
+# 目录
+* [pom.xml](#pom)
+* [web.xml](#web)
+* [mybatis-config.xml](#mybatis-config)
+
+
+<h2 id="pom">pom.xml</h2>
+
 ***
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -60,7 +67,8 @@
 </project>
 ```
 ***
-## web.xml
+<h2 id="web">web.xml</h2>
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
@@ -73,4 +81,34 @@
     </welcome-file-list>
 
 </web-app>
+```
+***
+<h2 id="mybatis-config">mybatis-config.xml</h2>
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <typeAliases>
+        <typeAlias alias="Student" type="com.kaishengit.entity.Student" />
+    </typeAliases>
+
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC" />
+            <dataSource type="POOLED">
+                <property name="driver" value="com.mysql.jdbc.Driver" />
+                <property name="url" value="jdbc:mysql://localhost:3306/mybatis" />
+                <property name="username" value="root" />
+                <property name="password" value="123456" />
+            </dataSource>
+        </environment>
+    </environments>
+
+    <mappers>
+        <mapper resource="mappers/StudentMapper.xml" />
+    </mappers>
+</configuration>
 ```
