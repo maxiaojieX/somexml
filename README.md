@@ -2,7 +2,7 @@
 * [pom.xml](#pom)
 * [web.xml](#web)
 * [mybatis-config.xml](#mybatis-config)
-
+* [Mapper.xml](#Mapper)
 
 <h2 id="pom">pom.xml</h2>
 
@@ -111,4 +111,16 @@
         <mapper resource="mappers/StudentMapper.xml" />
     </mappers>
 </configuration>
+```
+<h2 id="Mapper">Mapper.xml</h2>
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kaishengit.entity.StudentMapper">
+
+</mapper>
 ```
