@@ -123,6 +123,48 @@
 
 <mapper namespace="com.kaishengit.entity.StudentMapper">
 
+	<resultMap id="projectMap" type="Project">
+            <id property="id" column="id"/>
+            <result property="projectName" column="project_name"></result>
+            <association property="admin" javaType="com.kaishengit.entity.Admin">
+                <id property="id" column="id"/>
+                <result property="adminName" column="admin_name"/>
+            </association>
+        </resultMap>
+	
+	<resultMap id="ArticleMap" type="com.kaishengit.entity.Article">
+            <id property="id" column="id"/>
+            <result property="title" column="title"/>
+            <collection property="lableList" ofType="com.kaishengit.entity.Lable" >
+                <id property="lid" column="lid"/>
+                <result property="lablename" column="lablename"/>
+            </collection>
+        </resultMap>
+	
+	<select id="findGo" resultMap="ArticleMap" parameterType="map">
+            SELECT
+                t_article.id,t_article.title,t_lable.lid,t_lable.lablename
+            FROM
+                t_article
+            INNER JOIN t_article_lable ON t_article.id = t_article_lable.aid
+            INNER JOIN t_lable ON t_article_lable.lid = t_lable.lid
+            <where>
+                <if test="id != null and id != ''">
+                    id = #{id}
+                </if>
+                <if test="title != null and title != ''">
+                    AND title =#{title}
+                </if>
+            </where>
+    </select>
+	
+    <insert id="insertMany" parameterType="list">
+        INSERT INTO students (name,email) VALUES
+        <foreach collection="list" item="student" separator="," >
+            (#{student.name},#{student.email})
+        </foreach>
+    </insert>
+	
 </mapper>
 ```
 <h2 id="generator">generatorConfig.xml</h2>
