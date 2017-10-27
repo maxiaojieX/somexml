@@ -3,6 +3,7 @@
 * [web.xml](#web)
 * [mybatis-config.xml](#mybatis-config)
 * [Mapper.xml](#Mapper)
+* [generatorConfig.xml](#generator)
 
 <h2 id="pom">pom.xml</h2>
 
@@ -123,4 +124,38 @@
 <mapper namespace="com.kaishengit.entity.StudentMapper">
 
 </mapper>
+```
+<h2 id="generator">generatorConfig.xml</h2>
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+    <!--使用本地connector.jar连接数据库-->
+    <classPathEntry location="F:\maven_local_lib\mysql\mysql-connector-java\5.1.26\mysql-connector-java-5.1.26.jar"/>
+    <!--targetRuntime:MyBatis3:生成带有Example
+                      MyBatis3Simple：生成简单的类和sql语句-->
+    <context id="myConfig" targetRuntime="MyBatis3">
+        <!--是否禁用默认注释-->
+        <commentGenerator>
+            <property name="suppressAllComments" value="true"/>
+            <property name="suppressDate" value="true"/>
+        </commentGenerator>
+        <!--连接数据库-->
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://localhost:3306/mybatis"
+                        userId="root"
+                        password="123456"/>
+        <!--targetPackage：生成的实体类放进哪个包？  targetProject：包的位置？-->
+        <javaModelGenerator targetPackage="com.kaishengit.entity" targetProject="src/main/java"/>
+        <!--targetPackage：生成的XML放在哪个文件夹？  targetProject：文件夹的位置 -->
+        <sqlMapGenerator targetPackage="mapper" targetProject="src/main/resources"/>
+        <!--targetPackage：生成的Mapper接口放在哪个包？ targetProject：包的位置？-->
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.kaishengit.mapper" targetProject="src/main/java"/>
+        <!--tableName:为数据库中哪些表使用自动生成  domainObjectName:在JAVA中的名字-->
+        <table tableName="t_project" domainObjectName="Project" enableSelectByExample="true"/>
+    </context>
+</generatorConfiguration>
 ```
