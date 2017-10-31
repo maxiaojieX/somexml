@@ -4,6 +4,7 @@
 * [mybatis-config.xml](#mybatis-config)
 * [Mapper.xml](#Mapper)
 * [generatorConfig.xml](#generator)
+* [Spring-applicationContext.xml](#Spring)
 
 <h2 id="pom">pom.xml</h2>
 
@@ -200,4 +201,67 @@
         <table tableName="t_project" domainObjectName="Project" enableSelectByExample="true"/>
     </context>
 </generatorConfiguration>
+```
+<h2 id="Spring">Spring-applicationContext.xml</h2>
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--不使用注解时，bean，注入以及AOP的配置-->
+
+    <!--<bean id="userDao" class="com.kaishengit.entity.UserDao"/>-->
+    <!--<bean id="userServiceImpl" class="com.kaishengit.service.impl.UserServiceImpl">-->
+        <!--<property name="userDao" ref="userDao"/>-->
+    <!--</bean>-->
+    <!--<bean class="com.kaishengit.service.impl.User2Impl" id="user2"/>-->
+    <!--<bean class="com.kaishengit.util.AopAdvance" id="aopAdvance"/>-->
+
+    <!--<aop:config>-->
+        <!--&lt;!&ndash;引用通知类&ndash;&gt;-->
+        <!--<aop:aspect ref="aopAdvance" >-->
+            <!--&lt;!&ndash;给哪些类中的哪些方法使用动态代理 ,-->
+            <!--并不是在加载xml时创建了代理目标对象，而是在通-->
+            <!--过getBean获取这个类的时候才创建代理对象&ndash;&gt;-->
+            <!--<aop:pointcut id="pointcut" expression="execution(* com.kaishengit.service..*.*(..))"/>-->
+            <!--<aop:around method="aroundAop" pointcut-ref="pointcut"/>-->
+        <!--</aop:aspect>-->
+    <!--</aop:config>-->
+
+
+    <!--使用注解时，bean使用自动扫描，AOP使用自动代理-->
+    <context:component-scan base-package="com.kaishengit"/>
+    <context:property-placeholder location="classpath:config.properties"/>
+    <aop:aspectj-autoproxy/>
+
+    <!--Spring jdbc数据源的配置-->
+    <bean class="org.apache.commons.dbcp2.BasicDataSource" id="dataSource">
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+    <!--jdbcTemplate 类似于dbUtil中的QueryRunner-->
+    <bean class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!--事务-->
+    <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager" id="transactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+        
+
+</beans>
 ```
