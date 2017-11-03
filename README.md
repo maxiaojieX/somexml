@@ -1,11 +1,23 @@
 # 目录
+
+杂货铺
 * [pom.xml](#pom)
 * [web.xml](#web)
 * [mybatis-config.xml](#mybatis-config)
 * [Mapper.xml](#Mapper)
 * [generatorConfig.xml](#generator)
-* [Spring-applicationContext.xml](#Spring)
+* [Spring-applicationContext.xml](#Spring)</br>
 
+SSM框架打包带走
+* [Maven依赖](#maven)
+* [web.xml配置SpringMVC中央控制器](#ssmweb)
+* [mvc-servlet.xml配置扫描中央控制器、视图解析器](#mvc)
+* [Spring.xml配置扫描Bean,数据源和事务](#ssmspring)
+
+<hr>
+<br><br>
+
+# 实体店
 <h2 id="pom">pom.xml</h2>
 
 ***
@@ -262,6 +274,223 @@
     </bean>
     <tx:annotation-driven transaction-manager="transactionManager"/>
         
+
+</beans>
+```
+<h2 id="maven">Maven依赖</h2>
+
+```xml
+<dependencies>
+    <!--spring-->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <version>4.3.9.RELEASE</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-jdbc</artifactId>
+        <version>4.3.9.RELEASE</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-tx</artifactId>
+        <version>4.3.9.RELEASE</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-test</artifactId>
+        <version>4.3.9.RELEASE</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-web</artifactId>
+        <version>4.3.9.RELEASE</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-webmvc</artifactId>
+        <version>4.3.9.RELEASE</version>
+    </dependency>
+    <!--mybatis-->
+    <dependency>
+        <groupId>org.mybatis</groupId>
+        <artifactId>mybatis</artifactId>
+        <version>3.4.4</version>
+    </dependency>
+    <dependency>
+        <groupId>org.mybatis</groupId>
+        <artifactId>mybatis-spring</artifactId>
+        <version>1.3.1</version>
+    </dependency>
+    <!--jackson-->
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.8.9</version>
+    </dependency>
+
+</dependencies>
+
+```
+<h2 id="ssmweb">web.xml配置SpringMVC中央控制器</h2>
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
+
+    <!--字符集过滤器-->
+    <filter>
+        <filter-name>encodingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+        <init-param>
+            <param-name>forceEncoding</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>encodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!--SpringMVC中央控制器-->
+    <servlet>
+        <servlet-name>mvc</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>mvc</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+    <!--在web容器启动时加载Spring配置，启动Spring容器-->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:spring*.xml</param-value>
+    </context-param>
+</web-app>
+```
+<h2 id="mvc">mvc-servlet.xml配置扫描中央控制器、视图解析器</h2>
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!--开启自动扫描-->
+    <context:component-scan base-package="com.ma.controller">
+        <!--防止其他扫描冲突，配置其他扫描在扫描时，放弃扫描该包注解下的类-->
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+    <!--新特性中无名氏配置-->
+    <mvc:annotation-driven/>
+
+    <!--放行静态资源-->
+    <!--<mvc:default-servlet-handler/>-->
+
+    <!--配置视图解析器-->
+    <bean class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+        <!--支持JSTL的配置项-->
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+        <!--视图前缀-->
+        <property name="prefix" value="/WEB-INF/view/"/>
+        <!--视图后缀-->
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!--文件上传解析器-->
+    <!--<bean class="org.springframework.web.multipart.commons.CommonsMultipartResolver" id="multipartResolver">-->
+        <!--<property name="maxUploadSize" value="10485760"/>-->
+    <!--</bean>-->
+
+</beans>
+```
+<h2 id="ssmspring">Spring.xml配置扫描Bean,数据源和事务</h2>
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+
+    <!--使用注解时，bean使用自动扫描，AOP使用自动代理-->
+    <context:component-scan base-package="com.ma">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+    <!--数据库配置信息位置-->
+    <context:property-placeholder location="classpath:config.properties"/>
+
+
+    <!--Spring jdbc数据源的配置-->
+    <bean class="org.apache.commons.dbcp2.BasicDataSource" id="dataSource">
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+
+    <!--事务-->
+    <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager" id="transactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!--开启事务-->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+    <!--MyBatis sqlSessionFactory-->
+    <bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sessionFactory">
+        <!--引用数据源-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--mapper.xml文件的位置-->
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+        <!--别名-->
+        <property name="typeAliasesPackage" value="com.ma.entity"/>
+        <!--分页插件配置-->
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageInterceptor">
+                    <property name="properties">
+                        <value>helperDialect=mysql</value>
+                    </property>
+                </bean>
+            </array>
+        </property>
+        <!--数据库字段名下划线映射配置-->
+        <property name="configuration">
+            <bean class="org.apache.ibatis.session.Configuration">
+                <property name="mapUnderscoreToCamelCase" value="true"/>
+            </bean>
+        </property>
+    </bean>
+
+    <!--自动扫描mapper接口，并产生实体类交给Spring管理-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.ma.mapper"/>
+    </bean>
 
 </beans>
 ```
