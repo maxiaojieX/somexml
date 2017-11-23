@@ -6,7 +6,11 @@
 * [mybatis-config.xml](#mybatis-config)
 * [Mapper.xml](#Mapper)
 * [generatorConfig.xml](#generator)
-* [Spring-applicationContext.xml](#Spring)</br>
+* [Spring-applicationContext.xml](#Spring)
+* [Spring-Quartz.xml](#Spring-Quartz)
+* [Spring-ActiveMQ.xml](#Spring-ActiveMQ)
+
+</br>
 
 SSM框架打包带走
 * [Maven依赖](#maven)
@@ -491,6 +495,97 @@ SSM框架打包带走
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <property name="basePackage" value="com.ma.mapper"/>
     </bean>
+
+</beans>
+```
+<h2 id="Spring-Quartz">Spring-Quartz.xml</h2>
+
+```xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+
+    <!--动态任务-->
+    <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean" id="schedulerFactoryBean">
+        
+        <!--数据源-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--事务管理器-->
+        <property name="transactionManager" ref="transactionManager"/>
+        <!--quartz-properties.xml文件的位置-->
+        <property name="configLocation" value="classpath:/quartz.properties"/>
+        <!--如果任务相同是否覆盖数据库中的任务，false会报错-->
+        <property name="overwriteExistingJobs" value="true"/>
+
+    </bean>
+
+
+</beans>
+```
+<h2 id="Spring-ActiveMQ">Spring-ActiveMQ.xml</h2>
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+<!--消息创建端-->
+    <!--配置MQ链接工厂-->
+    <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL" value="tcp://127.0.0.1:61616"/>
+    </bean>
+
+    <!--配置SpringleMsFactory-->
+    <bean id="singleConnectionFactory" class="org.springframework.jms.connection.SingleConnectionFactory">
+        <property name="targetConnectionFactory" ref="activeMQConnectionFactory"/>
+    </bean>
+
+    <!--配置JMSTemplete-->
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="singleConnectionFactory"/>
+    </bean>
+
+
+<!--消息消费端-->
+
+    <!--配置MQ链接工厂-->
+    <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL" value="tcp://127.0.0.1:61616"/>
+    </bean>
+
+    <!--配置SpringleMsFactory-->
+    <bean id="singleConnectionFactory" class="org.springframework.jms.connection.SingleConnectionFactory">
+        <property name="targetConnectionFactory" ref="activeMQConnectionFactory"/>
+    </bean>
+
+    <!--配置JMSTemplete-->
+    <bean id="jmsListenerContainerFactory" class="org.springframework.jms.config.DefaultJmsListenerContainerFactory">
+        <property name="connectionFactory" ref="singleConnectionFactory"/>
+    </bean>
+    <!--开启基于注解的消费端-->
+    <jms:annotation-driven container-factory="jmsListenerContainerFactory"/>
+
+
+
+
 
 </beans>
 ```
