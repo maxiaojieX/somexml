@@ -1,7 +1,7 @@
 # 目录
 
-杂货铺
-* [pom.xml](#pom)
+# 杂货铺
+* [pom.xml](#pom) 
 * [web.xml](#web)
 * [mybatis-config.xml](#mybatis-config)
 * [Mapper.xml](#Mapper)
@@ -9,6 +9,8 @@
 * [Spring-applicationContext.xml](#Spring)
 * [Spring-Quartz.xml](#Spring-Quartz)
 * [Spring-ActiveMQ.xml](#Spring-ActiveMQ)
+* [Hibernate.cfg.xml](#Hibernate.cfg)
+* [XXX.hbm.xml](#hbm)
 
 </br>
 
@@ -588,4 +590,110 @@ SSM框架打包带走
 
 
 </beans>
+```
+<h2 id="Hibernate.cfg">Hibernate.cfg.xml</h2>
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+    <session-factory>
+
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="connection.url">jdbc:mysql:///mybatis?useSSL=false</property>
+        <property name="connection.username">root</property>
+        <property name="connection.password">123456</property>
+
+        <!--方言-->
+        <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+        <!--池配置-->
+        <property name="c3p0.max_size">2</property>
+        <property name="c3p0.min_size">2</property>
+        <property name="c3p0.timeout">5000</property>
+        <property name="c3p0.max_statements">100</property>
+        <property name="c3p0.idle_test_period">3000</property>
+        <property name="c3p0.acquire_increment">2</property>
+        <property name="c3p0.validate">false</property>
+        <!--打印语句-->
+        <property name="show_sql">true</property>
+
+        <property name="current_session_context_class">thread</property>
+
+        <!--映射文件注册-->
+        <mapping resource="hbm/Students.hbm.xml"/>
+        <mapping resource="hbm/Article.hbm.xml"/>
+        <mapping resource="hbm/Node.hbm.xml"/>
+
+    </session-factory>
+
+</hibernate-configuration>
+```
+<h2 id="hbm">XXX.hbm.xml</h2>
+
+```xml
+<!--例子,t_article表为多表,t_node为一表-->
+
+<!--Article.hbm.xml-->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.ma.pojo">
+    <class name="Article" table="t_article">
+        <id name="id">
+            <generator class="native"/>
+        </id>
+        <property name="title" column="title"/>
+        <!--
+        nodeid为外键,在Article类中使用Node作为属性
+        name:属性名
+        class:对象属性
+        column:数据库字段名
+        fetch:避免N+1
+        -->
+        <many-to-one name="node" class="Node" column="nodeid" fetch="join"/>
+    </class>
+
+</hibernate-mapping>
+
+<!--Node.hbm.xml-->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.ma.pojo">
+    <class name="Node" table="t_node">
+        <id name="nid" column="nid">
+            <generator class="native"/>
+        </id>
+        <property name="nodeName" column="nodename"/>
+
+        <set name="articleSet">
+            <key column="nodeid"></key>
+            <one-to-many class="Article"/>
+        </set>
+
+    </class>
+
+</hibernate-mapping>
+
+```
+```java
+<!--Article.java-->
+public class Article {
+    private Integer id;
+    private String title;
+    private Node node;
+}    
+
+<!--Node.java-->
+public class Node {
+    private Integer nid;
+    private String nodeName;
+    private Set<Article> articleSet;
+}
 ```
