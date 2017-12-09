@@ -11,6 +11,7 @@
 * [Spring-ActiveMQ.xml](#Spring-ActiveMQ)
 * [Hibernate.cfg.xml](#Hibernate.cfg)
 * [XXX.hbm.xml](#hbm)
+* [spring-dubbo-xx.xml](#dubbo)
 
 </br>
 
@@ -696,4 +697,48 @@ public class Node {
     private String nodeName;
     private Set<Article> articleSet;
 }
+```
+<h2 id="dubbo">Dubbo.xml</h2>
+
+```xml
+<!--微服务提供端-->
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+    <!--服务名称-->
+    <dubbo:application name="UserService"/>
+
+    <!--注册中心-->
+    <dubbo:registry address="zookeeper://127.0.0.1:2181"/>
+
+    <!--dubbo协议和端口-->
+    <dubbo:protocol host="127.0.0.1" name="dubbo" port="20880"/>
+
+    <!--暴露服务-->
+    <bean id="userService" class="com.ma.service.impl.UserServiceImpl"/>
+    <dubbo:service interface="com.ma.service.UserService" ref="userService"/>
+</beans>
+
+```
+```xml
+<!--微服务消费端-->
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <dubbo:application name="UserConsumer"/>
+    <dubbo:registry address="zookeeper://127.0.0.1:2181"/>
+    <!--需要哪个服务-->
+    <dubbo:reference interface="com.ma.service.UserService" id="myUserService"/>
+
+</beans>
+
 ```
